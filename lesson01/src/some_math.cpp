@@ -1,8 +1,15 @@
 #include "some_math.h"
 
 int fibbonachiRecursive(int n) {
+    std::vector <int> mas;
+    mas.push_back(1);
+    mas.push_back(1);
+    for(int i=0;i<n;i++){
+        mas.push_back(mas[mas.size()-1]+mas[mas.size()-1]);
+
+    }
     // TODO 03 реализуйте функцию которая считает числа Фибоначчи - https://ru.wikipedia.org/wiki/%D0%A7%D0%B8%D1%81%D0%BB%D0%B0_%D0%A4%D0%B8%D0%B1%D0%BE%D0%BD%D0%B0%D1%87%D1%87%D0%B8
-    return 0;
+    return mas[n-1];
 }
 
 int fibbonachiFast(int n) {
