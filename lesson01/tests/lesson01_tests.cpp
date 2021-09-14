@@ -34,7 +34,10 @@ TEST(lesson01, fib10) {
 }
 
 TEST(lesson01, fib100) {
-//    fibbonachiRecursive(100); // TODO 05 обратите внимание что рекурсивный Фибоначчи очень медленный, переделайте его на быстрый вариант, замените его здесь и убедитесь что стало быстрее
+    fibbonachiRecursive(9);
+    cout<<fibbonachiFast(9)<<endl;
+    cout<<fibbonachiFast(33)<<endl;
+    cout<<fibbonachiFast(33333333333333)<<endl;   //    fibbonachiRecursive(100); // TODO 05 обратите внимание что рекурсивный Фибоначчи очень медленный, переделайте его на быстрый вариант, замените его здесь и убедитесь что стало быстрее
 //    fibbonachiFast(100);
 }
 
@@ -72,8 +75,20 @@ TEST(lesson01, findX6) {
 TEST(lesson01, solveSquare1) {
     // 0*x^2 + 4*x - 6 = 0
     std::vector<double> xs = solveSquare(0.0, 4.0, -6.0);
-    GTEST_ASSERT_EQ(xs.size(), 1); // сверяем что найден ровно один корень
+    GTEST_ASSERT_EQ(xs.size(), 1);
     double x0 = xs[0];
-    GTEST_ASSERT_EQ(x0, 1.5); // сверяем что найденный корень правильный
+    GTEST_ASSERT_EQ(x0, 1.5);
+    xs = solveSquare(1, 2, 1);
+    GTEST_ASSERT_EQ(xs.size(), 1);
+    x0 = xs[0];
+    GTEST_ASSERT_EQ(x0, -1.0);
+    xs = solveSquare(1, 0, 1);
+    GTEST_ASSERT_EQ(xs.size(), 0);
+    xs = solveSquare(1,-3,2);
+    GTEST_ASSERT_EQ(xs.size(), 2);
+    x0 = xs[0];
+    double x1=xs[1];
+    GTEST_ASSERT_EQ(x0, 1.0);
+    GTEST_ASSERT_EQ(x1, 2.0);
 }
 
