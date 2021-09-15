@@ -1,5 +1,7 @@
+#include <bits/stdc++.h>
 #include "some_math.h"
 
+using namespace std;
 int fibbonachiRecursive(int n) {
     if (n == 0) return 0;
     if (n == 1) return 1;
@@ -21,10 +23,10 @@ vector<vector<int> > v4(vector<vector<int> > v, int n) {
     if (n == 1) return v;
     if (n % 2 == 0) {
         vector<vector<int> > c = v4(v, n / 2);
-        return bh(u, u);
+        return v3(c, c);
     } else {
         vector<vector<int> > c = v4(v, n - 1);
-        return bh(u, v);
+        return v3(c, v);
     }
 };
 int fibbonachiFast(int n) {
@@ -37,7 +39,7 @@ int fibbonachiFast(int n) {
     vector<vector<int> > c = v4(v, n-1);
     return c[0][0];
 }
-}
+
 
 // TODO 04 реализуйте быструю функцию Фибоначчи с использованием std::vector
 
