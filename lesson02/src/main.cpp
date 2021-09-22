@@ -1,7 +1,6 @@
 #include <vector>
 #include <iostream>
 #include <libutils/rasserts.h>
-#include <bits/stdc++.h>
 #include "helper_function.h" // подключаем функцию print2DArray(...) из соседнего файла
 using namespace std;
 
@@ -86,10 +85,10 @@ void task3() {
         a[i-1][j-1]++;
         print2DArray(a);
         for(auto h:a) {
-
+            bool ok=true;
             for(auto h1:h)
-                true == (true && h1==1);
-            if(true) {
+
+            if(ok) {
                 cout<<"OX-XO-XO"<<endl;
                 exit(0);
             }
