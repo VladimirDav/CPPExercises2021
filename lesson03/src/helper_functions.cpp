@@ -9,7 +9,7 @@ cv::Mat getanime(cv::Mat object, cv::Mat largeBackground,int n)
 {
     rassert(largeBackground.rows>object.rows,"123");
     rassert(largeBackground.cols>object.cols,"124");
-    for(int x=0;x<n;x++)
+    for(int cyc=0;cyc<n;cyc++)
     {
         int zxx=largeBackground.rows-object.rows;
         int zxy=largeBackground.cols-object.cols;
@@ -158,8 +158,8 @@ cv::Mat addBackgroundInsteadOfBlackPixelsLargeBackground(cv::Mat object, cv::Mat
 cv::Mat blackrandom(cv::Mat image1) {
     cv::Mat image=image1.clone();
     cout<<time(NULL)+getpid()+rand()<<endl;
-    srand(time(NULL)+getpid()+rand());
-    mt19937 rnd(time(NULL)+getpid()+rand());
+    srand(time(NULL)+rand());
+    mt19937 rnd(time(NULL)+rand());
     for(int i=0;i<image.rows;i++)
     {
         for(int j=0;j<image.cols;j++)

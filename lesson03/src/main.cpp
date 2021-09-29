@@ -253,7 +253,7 @@ void task4maskfon() {
     bool isSuccess = video.read(content.frame); // считываем из видео очередной кадр
     rassert(isSuccess, 6579849545); // проверяем что считывание прошло успешно
     cv::Mat image0=content.frame.clone();
-    cv::Mat largeCastle = cv::imread("lesson03/data/castle_large.jpg").clone();
+    cv::Mat largeCastle = cv::imread("lesson03/data/10.jpg").clone();
     while (video.isOpened()) { // пока видео не закрылось - бежим по нему
         bool isSuccess = video.read(content.frame); // считываем из видео очередной кадр
         rassert(isSuccess, 348792347819); // проверяем что считывание прошло успешно
