@@ -324,7 +324,7 @@ int main() {
         // task2();
         // task3();
         // task4();
-        task4maskfon();
+       //task4maskfon();
         return 0;
     } catch (const std::exception &e) {
         std::cout << "Exception! " << e.what() << std::endl;
