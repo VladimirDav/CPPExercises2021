@@ -15,6 +15,17 @@ void testingMyDisjointSets() {
     for (int element = 0; element < 5; ++element) {
         rassert(set.get_set(element) == element, 23892803643);
         rassert(set.get_set_size(element) == 1, 238928031);
+        DisjointSet set2(5);
+        cout<<set2.get_set(0)<<endl;
+        set2.union_sets(0,1);
+        cout<<set2.get_set(0)<<endl;
+        cout<<set2.get_set(1)<<endl;
+        cout<<set2.count_differents()<<endl;
+        DisjointSet set3((int) 1e7);
+        for(int i=0;i<(1e7)-1;++i) set3.union_sets(i,i+1);
+        cout<<set3.count_differents()<<endl;
+        int time2=clock();
+        cout<<setprecision(6)<<(time2-time1+0.0)/CLOCKS_PER_SEC<<endl;
     }
 
     // TODO 100 по мере реализации DisjointSet - добавьте здесь каких-то вызовов операции "объединение двух множеств", сразу после этого проверяя через rassert что после этого результат такой как вы ожидаете
