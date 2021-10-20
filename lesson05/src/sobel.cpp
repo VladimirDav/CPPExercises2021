@@ -102,6 +102,7 @@ cv::Mat convertDXYToDX(cv::Mat img) {
 
             dxImg.at<float>(j, i) = x;
         }
+
     }
     return dxImg;
 }
