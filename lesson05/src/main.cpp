@@ -58,6 +58,9 @@ int main() {
         testSobel("line21_water_horizont");
         testSobel("multiline1_paper_on_table");
         testSobel("multiline2_paper_on_table");
+        testSobel("vovaxuesos");
+        testSobel("vovachlenosos");
+        testSobel("xoxol");
 
         testSobel("valve");
         return 0;
