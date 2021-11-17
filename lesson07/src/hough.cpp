@@ -40,6 +40,9 @@ cv::Mat buildHough(cv::Mat sobel) {// единственный аргумент 
             {
                 cout<<x0<<' '<<y0<<endl;
             }
+            if (strength == 0.0) {
+                continue;
+            }
             for (int theta0 = 0; theta0 < max_theta; ++theta0) {
                 //  рассчитайте на базе информации о том какие координаты у пикселя - (x0, y0) и какой параметр theta0 мы сейчас рассматриваем
                 //  обратите внимание что функции sin/cos принимают углы в радианах, поэтому сначала нужно пересчитать theta0 в радианы (воспользуйтесь константой PI)
@@ -67,5 +70,39 @@ cv::Mat buildHough(cv::Mat sobel) {// единственный аргумент 
         }
     }
 
+//    int size1;
+//    size1=4;
+//    int k;
+//    int size;
+//    int size2;
+//    size2=size1;
+//    size= size1;
+//    for(int i0=0;i0<accumulator.cols;i0++)
+//    {
+//        for (int j0 = 0; j0 < accumulator.rows ; j0++)
+//        { k=0;
+//
+//            size=min(size1,min(i0,accumulator.cols-i0));
+//            size2=min(size1,min(j0,accumulator.rows -j0));
+//
+//
+//            if(size>0) {
+//                for (int t0 = -size2; t0 < size2; t0++) {
+//                    for (int r0 = -size; r0 < size; r0++) {
+//
+//                        if (accumulator.at<float>(j0, i0) < accumulator.at<float>(j0 + t0, i0 + r0))
+//                            k++;
+//                    }
+//
+//                }
+//                if (k > 0)
+//                    accumulator.at<float>(j0, i0) = 0;
+//            }
+//
+//        }
+//    }
+
+
     return accumulator;
+
 }
