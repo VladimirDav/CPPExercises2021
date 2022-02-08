@@ -9,7 +9,7 @@
 
 #include <libutils/rasserts.h>
 
-
+using namespace std;
 std::vector<cv::Point2f> filterPoints(std::vector<cv::Point2f> points, std::vector<unsigned char> matchIsGood) {
     rassert(points.size() == matchIsGood.size(), 234827348927016);
 
@@ -23,7 +23,7 @@ std::vector<cv::Point2f> filterPoints(std::vector<cv::Point2f> points, std::vect
 }
 
 
-void test1() {
+void test() {
     std::string caseName = "1_box2";
 
     std::string path = "lesson13/data/" + caseName + "/";
@@ -80,19 +80,19 @@ void test1() {
 
         rassert(matches01[i][0].distance <= matches01[i][1].distance, 328493778); // давайте явно проверим что расстояние для этой второй точки - не меньше чем для первой точки
     }
-
-    // TODO: исследуйте минимальное/медианное/максимальное расстояние в найденных сопоставлениях
     {
-//        std::vector<double> distances;
-//        for (int i = 0; i < matches01.size(); ++i) {
-//            distances.push_back( TODO );
-//        }
-//        std::sort( TODO ); // GOOGLE: "cpp how to sort vector"
-//        std::cout << "matches01 distances min/median/max: " << distances[ TODO ] << "/" << distances[ TODO ] << "/" << distances[ TODO ] << std::endl;
+        std::vector<double> distances;
+        for (int i = 0; i < matches10.size(); ++i) {
+            distances.push_back( matches10[i][0].distance );
+        }
+        std::sort(distances.begin(),distances.end()); // GOOGLE: "cpp how to sort vector"
+        std::cout << "matches01 distances min/median/max: " << distances[ 0 ] << "/" << distances[ distances.size()/2] << "/" << distances.back() << std::endl;
+        //
     }
+
     for (int k = 0; k < 2; ++k) {
         std::vector<cv::DMatch> matchesK;
-        for (int i = 0; i < matches01.size(); ++i) {
+        for (int i = 0; i < matches01.size(); i++) {
             matchesK.push_back(matches01[i][k]);
         }
         // давайте взглянем как выглядят сопоставления между точками (k - указывает на какие сопоставления мы сейчас смотрим, на ближайшие, или на вторые по близости)
@@ -102,27 +102,36 @@ void test1() {
     }
 
     // Теперь давайте сопоставим ключевые точки между картинкой 1 и картинкой 0 (т.е. в обратную сторону):
-    std::vector<std::vector<cv::DMatch>> matches10;
-    std::cout << "Matching " << keypoints1.size() << " points with " << keypoints0.size() << "..." << std::endl;
-    // TODO сделайте все то же самое что и выше (можете прямо скопипастить) просто аккуратно поменяйте все 0 и 1 наоборот
-    for (int i = 0; i < matches10.size(); ++i) {
+    vector<vector<cv::DMatch>> matches10;
+    cout << "Matching " << keypoints1.size() << " points with " << keypoints0.size() << "..." << std::endl;
+    cout << "Matching " << keypoints0.size() << " points with " << keypoints1.size() << "..." << std::endl;
+    for (int i = 0; i < matches10.size(); i++) {
         rassert(matches10[i].size() == 2, 3427890347902051);
-        // TODO
+        rassert(matches10[i][0].==i, 123456);
+        rassert(matches10[i][1].queryIdx==i, 12356);
+        rassert(matches10[i][0].trainIdx<keypoints0.size(), 123456);
+        rassert(matches10[i][1].trainIdx<keypoints0.size(), 123456);
+        rassert(matches10[i][0].distance<=matches10[i][1].distance, 123456);
     }
     {
-        std::vector<double> distances;
-        for (int i = 0; i < matches10.size(); ++i) {
-            // TODO
+        vector<double> distances;
+        for (int i = 0; i < matches10.size();i++) {
+            distances.push_back( matches10[i][0].distance );
         }
-        // TODO
+        sort(distances.begin(),distances.end());
+        cout << "matches01 distances min/median/max:" << distances[ 0 ] << "/" << distances[ distances.size()/2] << "/" << distances.back() << std::endl;
     }
     for (int k = 0; k < 2; ++k) {
-//        TODO
-//        cv::imwrite(results + "03matches10_k" + std::to_string(k) + ".jpg", imgWithMatches);
-    }
+        std::vector<cv::DMatch> matchesK;
+        for (int i = 0; i < matches10.size(); ++i) {
+            matchesK.push_back(matches10[i][k]);
+        }
+        // давайте взглянем как выглядят сопоставления между точками (k - указывает на какие сопоставления мы сейчас смотрим, на ближайшие, или на вторые по близости)
+        cv::Mat imgWithMatches;
+        cv::drawMatches(img1, keypoints1, img0, keypoints0, matchesK, imgWithMatches);
+        cv::imwrite(results + "03matches10_k" + std::to_string(k) + ".jpg", imgWithMatches);
 
-    // Теперь давайте попробуем убрать ошибочные сопоставления
-    std::cout << "Filtering matches..." << std::endl;
+        std::cout << "Filtering matches..." << std::endl;
     std::vector<cv::Point2f> points0, points1; // здесь сохраним координаты ключевых точек для удобства позже
     std::vector<unsigned char> matchIsGood; // здесь мы отметим true - хорошие сопоставления, и false - плохие
     int nmatchesGood = 0; // посчитаем сколько сопоставлений посчиталось хорошими
@@ -137,29 +146,24 @@ void test1() {
 
         bool isOk = true;
 
-        // TODO реализуйте фильтрацию на базе "достаточно ли похож дескриптор?" - как можно было бы подобрать порог? вспомните про вывод min/median/max раньше
-//        if (match.distance > ???) {
-//            isOk = false;
-//        }
-
-        // TODO добавьте K-ratio тест (K=0.7), т.е. проверьте правда ли самая похожая точка сильно ближе к нашей точки (всмысле расстояния между дескрипторами) чем вторая по похожести?
-//        cv::DMatch match2 = TODO;
-//        if (match.distance > TODO) {
-//            isOk = false;
-//        }
-
-        // TODO добавьте left-right check, т.е. проверку правда ли если для точки А самой похожей оказалась точка Б, то вероятно при обратном сопоставлении и у точки Б - ближайшей является точка А
-//        cv::DMatch match01 = match;
-//        cv::DMatch match10 = matches10[TODO][TODO];
-//        if (TODO) {
-//            isOk = false;
-//        }
+        if (match.distance > distances[distances.size()/3]) {
+            isOk = false;
+        }
+        cv::DMatch match2 = matches01[i][1];
+        if (match.distance > 0.7*match2.distance) {
+            isOk = false;
+        }
+        cv::DMatch match01 = match;
+        cv::DMatch match10 = matches10[match.trainIdx][0];
+        if (match10.trainIdx!=i) {
+            isOk = false;
+        }
 
         // TODO: визуализация в 04goodMatches01.jpg покажет вам какие сопоставления остаются, какой из этих методов фильтрации оказался лучше всего?
         // TODO: попробуйте оставить каждый из них закомменьтировав два других, какой самый крутой?
         // TODO: попробуйте решить какую комбинацию этих методов вам хотелось бы использовать в результате?
         // TODO: !!!ОБЯЗАТЕЛЬНО!!! ЗАПИШИТЕ СЮДА ВВИДЕ КОММЕНТАРИЯ СВОИ ОТВЕТЫ НА ЭТИ ВОПРОСЫ И СВОИ ВЫВОДЫ!!!
-
+//  я использовал все сразу
         if (isOk) {
             ++nmatchesGood;
             matchIsGood.push_back(true);
@@ -169,9 +173,10 @@ void test1() {
     }
     rassert(points0.size() == points1.size(), 3497282579850108);
     rassert(points0.size() == matchIsGood.size(), 3497282579850109);
-    // TODO выведите сколько из скольки соответствий осталось после фильтрации:
-//    std::cout << TODO << "/" << TODO << " good matches left" << std::endl;
-
+        int sum=0;
+        for(auto h:matchIsGood)
+            sum+=h;
+        std::cout << sum << "/" << keypoints0.size() << " good matches left" << std::endl;
     {
         std::vector<cv::DMatch> goodMatches;
         for (int i = 0; i < matches01.size(); ++i) {
@@ -234,33 +239,28 @@ void test1() {
 
     cv::imwrite(results + "08img0.jpg", img0); // сохраним первую картинку
 
-    cv::Mat H10 = H01.inv(); // у матрицы есть обратная матрица - находим ее, какое преобразование она делает?
-    cv::Mat img1to0;
-//    cv::warpPerspective(TODO TODO TODO); // TODO преобразуйте вторую картинку в пространство первой картинки
-//    cv::imwrite(results + "09img1to0.jpg", img1to0); // TODO проверьте что она правильно наложилась на первую картинку
+        cv::Mat H10 = H01.inv();
+        cv::Mat img1to0;
+        cv::warpPerspective(img1, img1to0, H10, img0.size());
+        cv::imwrite(results + "09img1to0.jpg", img1to0);
+        img1to0 = img0.clone();
+        cv::warpPerspective(img1, img1to0, H10, img1to0.size(), cv::INTER_LINEAR, cv::BORDER_TRANSPARENT);
+        cv::imwrite(results + "10img0with1to0.jpg", img1to0);
+        if(isalternative) {
+            img1to0 = img0.clone();
+            cv::warpPerspective(img1_alternative, img1to0, H10, img1to0.size(), cv::INTER_LINEAR, cv::BORDER_TRANSPARENT);
+            cv::imwrite(results + "11img0withNesquik.jpg", img1to0);
+        }
+        void test1() {
+            test("1_box2","box0.png","box1.png",true,"box1_nesquik.png");
+        }
+        void test2() {
+            test("2_hiking2","hiking0.png","hiking1.png",false,"");
+        }
 
-//    img1to0 = img0.clone(); // давайте теперь вторую картинку нарисуем не просто в пространстве первой картинки - но поверх нее!
-//    cv::warpPerspective(img1, img1to0, H10, img1to0.size(), cv::INTER_LINEAR, cv::BORDER_TRANSPARENT);
-//    cv::imwrite(results + "10img0with1to0.jpg", img1to0);
-
-//    img1to0 = img0.clone();
-//    cv::warpPerspective(TODO); // сделайте то же самое что и в предыдущей визуализации но вместо второй картинки - наложите картинку с несквиком
-//    cv::imwrite(results + "11img0withNesquik.jpg", img1to0);
-}
-
-void test2() {
-    std::string caseName = "2_hiking2";
-
-    // TODO можете скопипастить сюда test1, можете попробовать вытащить все то что было там - в функции, на ваш выбор
-    // обратите внимание что теперь результирующую картинку-коллаж-панораму хочется делать большего размера чем оригинальную
-}
-
-void test3() {
-    std::string caseName = "3_hanging2";
-
-    // TODO то же самое
-}
-
+        void test3() {
+            test("3_hanging2","hanging0.png","hanging1.png",false,"");
+        }
 void test4() {
     std::string caseName = "4_aero9";
 
@@ -271,7 +271,7 @@ void test4() {
 
 int main() {
     try {
-        test1(); // TODO обязательное
+ //       test1(); // TODO обязательное
 //        test2(); // TODO обязательное
 //        test3(); // TODO обязательное
 
