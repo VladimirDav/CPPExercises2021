@@ -11,10 +11,10 @@
 
 #include <libutils/rasserts.h>
 
-
+using namespace std;
 void drawText(cv::Mat img, std::string text, double fontScale, int &yOffset) {
     cv::Scalar white(255, 255, 255);
-    // рассчитываем высоту текста в пикселях:
+
     float textHeight = cv::getTextSize(text, cv::FONT_HERSHEY_DUPLEX, fontScale, 1, nullptr).height;
     yOffset += textHeight; // увеличиваем сдвиг на высоту текста в пикселях
     cv::putText(img, text, cv::Point(0, yOffset), cv::FONT_HERSHEY_DUPLEX, fontScale, white);
@@ -23,7 +23,7 @@ void drawText(cv::Mat img, std::string text, double fontScale, int &yOffset) {
 std::vector<cv::Point2f> filterPoints(std::vector<cv::Point2f> points, std::vector<unsigned char> matchIsGood) {
     rassert(points.size() == matchIsGood.size(), 234827348927016);
 
-    std::vector<cv::Point2f> goodPoints;
+    vector<cv::Point2f> goodPoints;
     for (int i = 0; i < matchIsGood.size(); ++i) {
         if (matchIsGood[i]) {
             goodPoints.push_back(points[i]);
@@ -33,8 +33,7 @@ std::vector<cv::Point2f> filterPoints(std::vector<cv::Point2f> points, std::vect
 }
 
 void run() {
-    const bool useWebcam = true; // TODO попробуйте выставить в true, если у вас работает вебкамера - то и здорово! иначе - работайте хотя бы со статичными картинками
-
+    const bool useWebcam = true;
     bool drawOver = true; // рисовать ли поверх наложенную картинку (можно включить-включить чтобы мигнуть картинкой и проверить качество выравнивания)
     bool drawDebug = true; // рисовать ли поверх отладочную информацию (например красный кант вокруг нарисованной поверх картинки)
     bool useSIFTDescriptor = true; // SIFT работает довольно медленно, попробуйте использовать ORB + не забудьте что тогда вам нужен другой DescriptorMatcher
@@ -48,12 +47,12 @@ void run() {
     rassert(!imgForDetection.empty(), 3789572984290019);
     rassert(!imgToDraw.empty(), 3789572984290021);
 
-    std::shared_ptr<cv::VideoCapture> video;
+    shared_ptr<cv::VideoCapture> video;
     if (useWebcam) {
         std::cout << "Trying to open web camera..." << std::endl;
         video = std::make_shared<cv::VideoCapture>(0);
         rassert(video->isOpened(), 3482789346289027);
-        std::cout << "Web camera video stream opened." << std::endl;
+        cout << "Web camera video stream opened." << std::endl;
     }
 
     while (true) {
@@ -82,18 +81,17 @@ void run() {
                 detector = cv::ORB::create();
                 matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::BRUTEFORCE_HAMMING);
 
-                // TODO кроме того будет быстрее работать если вы будете использовать релизную сборку вместо Debug:
-                // см. "Как ускорить программу" - https://www.polarnick.com/blogs/239/2021/school239_11_2021_2022/2021/10/05/lesson5-disjoint-set.html
+
             }
 
-            std::vector<cv::KeyPoint> keypoints0, keypoints1; // здесь будет храниться список ключевых точек
+            vector<cv::KeyPoint> keypoints0, keypoints1; // здесь будет храниться список ключевых точек
             cv::Mat descriptors0, descriptors1; // здесь будут зраниться дескрипторы этих ключевых точек
             detector->detectAndCompute(imgForDetection, cv::noArray(), keypoints0, descriptors0);
             detector->detectAndCompute(currentFrame, cv::noArray(), keypoints1, descriptors1);
 
             // TODO детектируйте и постройте дескрипторы у ключевых точек
 
-            std::vector<std::vector<cv::DMatch>> matches01;
+            vector<std::vector<cv::DMatch>> matches01;
             matcher->knnMatch(descriptors0, descriptors1, matches01, 2); // k: 2 - указывает что мы ищем ДВЕ ближайшие точки, а не ОДНУ САМУЮ БЛИЖАЙШУЮ
             // т.к. мы для каждой точки keypoints0 ищем ближайшую из keypoints1, то сопоставлений найдено столько же сколько точек в keypoints0:
             rassert(keypoints0.size() == matches01.size(), 234728972980049);
@@ -129,14 +127,14 @@ void run() {
 
             // TODO пофильтруйте сопоставления, как минимум через K-ratio test, но лучше на ваш выбор
 
-            std::vector<cv::Point2f> points0, points1; // здесь сохраним координаты ключевых точек для удобства позже
-            std::vector<unsigned char> matchIsGood; // здесь мы отметим true - хорошие сопоставления, и false - плохие
+            vector<cv::Point2f> points0, points1; // здесь сохраним координаты ключевых точек для удобства позже
+            vector<unsigned char> matchIsGood; // здесь мы отметим true - хорошие сопоставления, и false - плохие
             int nmatchesGood = 0; // посчитаем сколько сопоставлений посчиталось хорошими
-            std::vector<double> distances;
+            vector<double> distances;
             for (int i = 0; i < matches01.size(); ++i) {
                 distances.push_back(matches01[i][0].distance);
             }
-            std::sort(distances.begin(), distances.end());
+            sort(distances.begin(), distances.end());
             for (int i = 0; i < keypoints0.size(); ++i) {
                 cv::DMatch match = matches01[i][0];
                 rassert(match.queryIdx == i, 234782749278097); // и вновь - queryIdx это откуда точки (поэтому всегда == i)
@@ -174,13 +172,11 @@ void run() {
             rassert(points0.size() == matchIsGood.size(), 3497282579850109);
             std::cout << nmatchesGood << "/" <<  keypoints0.size() << " good matches left" << std::endl;
             rassert(points0.size() == points1.size(), 234723947289089);
-            // TODO добавьте вывод в лог - сколько ключевых точек было изначально, и сколько осталось сопоставлений после фильтрации
 
-            // TODO findHomography(...) + рисование поверх:
             const double ransacReprojThreshold = 3.0;
-            std::vector<cv::Point2f> pointsGood0 = filterPoints(points0, matchIsGood);
-            std::vector<cv::Point2f> pointsGood1 = filterPoints(points1, matchIsGood);
-            std::vector<unsigned char> inliersMask; // в этот вектор RANSAC запишет флажки - какие сопоставления он посчитал корректными (inliers)
+            vector<cv::Point2f> pointsGood0 = filterPoints(points0, matchIsGood);
+            vector<cv::Point2f> pointsGood1 = filterPoints(points1, matchIsGood);
+            vector<unsigned char> inliersMask; // в этот вектор RANSAC запишет флажки - какие сопоставления он посчитал корректными (inliers)
             cv::Mat H01;
             if(pointsGood0.size() >= 4) H01 = cv::findHomography(pointsGood0, pointsGood1, cv::RANSAC, ransacReprojThreshold, inliersMask);
             if (H01.empty()) {
@@ -195,7 +191,7 @@ void run() {
                     cv::rectangle(overlapImg, cv::Point(0, 0), cv::Point(overlapImg.cols-1, overlapImg.rows-1), red, 2);
                 }
                 if (drawOver) {
-                    // cv::warpPerspective(TODO);
+
 
                     cv::warpPerspective(overlapImg, mainWindowImage, H01, mainWindowImage.size(), cv::INTER_LINEAR, cv::BORDER_TRANSPARENT);
 
@@ -214,9 +210,9 @@ void run() {
             } else {
                 fps = (int) std::round(1000.0 / timeForFrame);
             }
-            drawText(mainWindowImage, std::to_string(fps) + " FPS", 0.5, textYOffset);
+            drawText(mainWindowImage, to_string(fps) + " FPS", 0.5, textYOffset);
 
-            // TODO добавьте короткую справку про кнопки управления
+
             drawText(mainWindowImage, "Controls: ", 0.5, textYOffset);
             drawText(mainWindowImage, "1 - image for detection", 0.5, textYOffset);
             drawText(mainWindowImage, "2 - image to draw", 0.5, textYOffset);

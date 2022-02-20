@@ -29,10 +29,9 @@ void test() {
     std::string path = "lesson13/data/" + caseName + "/";
     std::string results = "lesson13/resultsData/" + caseName + "/";
 
-    if (!std::filesystem::exists(results)) { // если папка для результатов еще не создана
-        std::filesystem::create_directory(results); // то создаем ее
+    if (!std::filesystem::exists(results)) {
+        std::filesystem::create_directory(results);
     }
-
     cv::Mat img0 = cv::imread(path + "box0.png");
     cv::Mat img1 = cv::imread(path + "box1.png");
     cv::Mat img1_alternative = cv::imread(path + "box1_nesquik.png");
@@ -41,19 +40,19 @@ void test() {
     rassert(img1.type() == CV_8UC3, 2389827851080021);
     rassert(img1_alternative.type() == CV_8UC3, 2389827851080023);
 
-    // Этот объект - алгоритм SIFT (детектирования и описания ключевых точек)
+
     cv::Ptr<cv::FeatureDetector> detector = cv::SIFT::create();
 
-    // Детектируем и описываем ключевые точки
+
     std::vector<cv::KeyPoint> keypoints0, keypoints1; // здесь будет храниться список ключевых точек
     cv::Mat descriptors0, descriptors1; // здесь будут зраниться дескрипторы этих ключевых точек
     std::cout << "Detecting SIFT keypoints and describing them (computing their descriptors)..." << std::endl;
     detector->detectAndCompute(img0, cv::noArray(), keypoints0, descriptors0);
     detector->detectAndCompute(img1, cv::noArray(), keypoints1, descriptors1);
-    std::cout << "SIFT keypoints detected and described: " << keypoints0.size() << " and " << keypoints1.size() << std::endl; // TODO
+    cout << "SIFT keypoints detected and described: " << keypoints0.size() << " and " << keypoints1.size() << std::endl; // TODO
 
     {
-        // Давайте нарисуем на картинке где эти точки были обнаружены для визуализации
+
         cv::Mat img0withKeypoints, img1withKeypoints;
         cv::drawKeypoints(img0, keypoints0, img0withKeypoints);
         cv::drawKeypoints(img1, keypoints1, img1withKeypoints);
@@ -61,14 +60,13 @@ void test() {
         cv::imwrite(results + "01keypoints1.jpg", img1withKeypoints);
     }
 
-    // Теперь давайте сопоставим ключевые точки между картинкой 0 и картинкой 1:
-    // найдя для каждой точки из первой картинки - ДВЕ самые похожие точки из второй картинки
-    std::vector<std::vector<cv::DMatch>> matches01;
-    std::cout << "Matching " << keypoints0.size() << " points with " << keypoints1.size() << "..." << std::endl; // TODO
+
+    vector<std::vector<cv::DMatch>> matches01;
+    cout << "Matching " << keypoints0.size() << " points with " << keypoints1.size() << "..." << std::endl; // TODO
     cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
     matcher->knnMatch(descriptors0, descriptors1, matches01, 2); // k: 2 - указывает что мы ищем ДВЕ ближайшие точки, а не ОДНУ САМУЮ БЛИЖАЙШУЮ
-    std::cout << "matching done" << std::endl;
-    // т.к. мы для каждой точки keypoints0 ищем ближайшую из keypoints1, то сопоставлений найдено столько же сколько точек в keypoints0:
+    cout << "matching done" << std::endl;
+
     rassert(keypoints0.size() == matches01.size(), 234728972980049);
     for (int i = 0; i < matches01.size(); ++i) {
         rassert(matches01[i].size() == 2, 3427890347902051);
@@ -85,7 +83,7 @@ void test() {
         for (int i = 0; i < matches10.size(); ++i) {
             distances.push_back( matches10[i][0].distance );
         }
-        std::sort(distances.begin(),distances.end()); // GOOGLE: "cpp how to sort vector"
+        std::sort(distances.begin(),distances.end());
         std::cout << "matches01 distances min/median/max: " << distances[ 0 ] << "/" << distances[ distances.size()/2] << "/" << distances.back() << std::endl;
         //
     }
@@ -95,13 +93,13 @@ void test() {
         for (int i = 0; i < matches01.size(); i++) {
             matchesK.push_back(matches01[i][k]);
         }
-        // давайте взглянем как выглядят сопоставления между точками (k - указывает на какие сопоставления мы сейчас смотрим, на ближайшие, или на вторые по близости)
+
         cv::Mat imgWithMatches;
         cv::drawMatches(img0, keypoints0, img1, keypoints1, matchesK, imgWithMatches);
         cv::imwrite(results + "02matches01_k" + std::to_string(k) + ".jpg", imgWithMatches);
     }
 
-    // Теперь давайте сопоставим ключевые точки между картинкой 1 и картинкой 0 (т.е. в обратную сторону):
+
     vector<vector<cv::DMatch>> matches10;
     cout << "Matching " << keypoints1.size() << " points with " << keypoints0.size() << "..." << std::endl;
     cout << "Matching " << keypoints0.size() << " points with " << keypoints1.size() << "..." << std::endl;
@@ -159,11 +157,7 @@ void test() {
             isOk = false;
         }
 
-        // TODO: визуализация в 04goodMatches01.jpg покажет вам какие сопоставления остаются, какой из этих методов фильтрации оказался лучше всего?
-        // TODO: попробуйте оставить каждый из них закомменьтировав два других, какой самый крутой?
-        // TODO: попробуйте решить какую комбинацию этих методов вам хотелось бы использовать в результате?
-        // TODO: !!!ОБЯЗАТЕЛЬНО!!! ЗАПИШИТЕ СЮДА ВВИДЕ КОММЕНТАРИЯ СВОИ ОТВЕТЫ НА ЭТИ ВОПРОСЫ И СВОИ ВЫВОДЫ!!!
-//  я использовал все сразу
+
         if (isOk) {
             ++nmatchesGood;
             matchIsGood.push_back(true);
