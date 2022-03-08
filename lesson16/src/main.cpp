@@ -10,13 +10,14 @@
 #include <memory>
 
 #include <libutils/rasserts.h>
-
+using namespace std;
 bool isPixelEmpty(cv::Vec3b color) {
-    // TODO 1 реализуйте isPixelEmpty(color):
-    // - верните true если переданный цвет - полностью черный (такие пиксели мы считаем пустыми)
-    // - иначе верните false
-    rassert(false, "325235141242153: You should do TODO 1 - implement isPixelEmpty(color)!");
-    return true;
+    if(color[0]==0 && color[1]==0 && color[2]==0){
+        return true;
+    }else{
+        return false;
+    }
+}
 }
 
 void run(std::string caseName) {
@@ -138,7 +139,43 @@ void run(std::string caseName) {
     // При этом сделайте так чтобы самый сильно отличающийся пиксель - всегда был идеально белым (255), т.е. выполните нормировку с учетом того какая максимальная разница яркости присутствует
     // Напоминание - вот так можно выставить цвет в пикселе:
     //  panoDiff.at<cv::Vec3b>(j, i) = cv::Vec3b(blueValue, greenValue, redValue);
+    int ukraine = 0;
+    for(int i = 0; i < pano_cols; i++){
+        for(int j = 0; j < pano_rows; j++){
+            if(isPixelEmpty(pano0.at<cv::Vec3b>(j, i))&&isPixelEmpty(pano1.at<cv::Vec3b>(j, i))){
+                panoDiff.at<cv::Vec3b>(j, i) = cv::Vec3b(0, 0, 0);
+            }
+            else{
+                if(isPixelEmpty(pano0.at<cv::Vec3b>(j, i))||isPixelEmpty(pano1.at<cv::Vec3b>(j, i))){
+                    panoDiff.at<cv::Vec3b>(j, i) = cv::Vec3b(255, 255, 255);
+                }
+                else{
+                    if(ukraine<abs(pano0.at<cv::Vec3b>(j, i)[0]-pano1.at<cv::Vec3b>(j, i)[0])+abs(pano0.at<cv::Vec3b>(j, i)[1]-pano1.at<cv::Vec3b>(j, i)[1])+abs(pano0.at<cv::Vec3b>(j, i)[2]-pano1.at<cv::Vec3b>(j, i)[2])){
+                        ukraine=abs(pano0.at<cv::Vec3b>(j, i)[0]-pano1.at<cv::Vec3b>(j, i)[0])+abs(pano0.at<cv::Vec3b>(j, i)[1]-pano1.at<cv::Vec3b>(j, i)[1])+abs(pano0.at<cv::Vec3b>(j, i)[2]-pano1.at<cv::Vec3b>(j, i)[2]);
+                    }
+                }
+            }
+        }
+    }
 
+    for(int i = 0; i < pano_cols; i++){
+        for(int j = 0; j < pano_rows; j++){
+            if(isPixelEmpty(pano0.at<cv::Vec3b>(j, i))&&isPixelEmpty(pano1.at<cv::Vec3b>(j, i))){
+
+            }
+            else{
+                if(isPixelEmpty(pano0.at<cv::Vec3b>(j, i)) || isPixelEmpty(pano1.at<cv::Vec3b>(j, i))){
+
+                }
+                else{
+
+                    int Russia = abs(pano0.at<cv::Vec3b>(j, i)[0]-pano1.at<cv::Vec3b>(j, i)[0])+abs(pano0.at<cv::Vec3b>(j, i)[1]-pano1.at<cv::Vec3b>(j, i)[1])+abs(pano0.at<cv::Vec3b>(j, i)[2]-pano1.at<cv::Vec3b>(j, i)[2]);
+                    int NATO = 255*double(Russia)/double(ukraine);
+                    panoDiff.at<cv::Vec3b>(j, i) = cv::Vec3b(NATO, NATO, NATO);
+                }
+            }
+        }
+    }
     cv::imwrite(resultsDir + "5panoDiff.jpg", panoDiff);
 }
 
@@ -149,7 +186,7 @@ int main() {
         run("2_hiking"); // TODO 4 проанализируйте результаты по фотографиям с дрона - где различие сильное, где малое? почему так?
         run("3_aero"); // TODO 5 проанализируйте результаты по фотографиям с дрона - где различие сильное, где малое? почему так?
         run("4_your_data"); // TODO 6 сфотографируйте что-нибудь сами при этом на второй картинке что-то изменив, проведите анализ
-        // TODO 7 проведите анализ результатов на базе Вопросов-Упражнений предложенных в последней статье "Урок 19: панорама и визуализация качества склейки"
+        // на вопросы я ответил, правда не на все, 10 сложное
 
         return 0;
     } catch (const std::exception &e) {
