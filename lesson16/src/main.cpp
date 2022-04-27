@@ -25,8 +25,13 @@ bool isPixelEmpty(cv::Vec3b color) {
 }
 
 void run(std::string caseName) {
-    cv::Mat img0 = cv::imread("lesson16/data/" + caseName + "/0.png");
-    cv::Mat img1 = cv::imread("lesson16/data/" + caseName + "/1.png");
+    Mat img0,img1;
+    if(caseName!="4_denis") {
+     img0 = cv::imread("lesson16/data/" + caseName + "/0.png");
+     img1 = cv::imread("lesson16/data/" + caseName + "/1.png");}
+    else {
+         img0 = cv::imread("lesson16/data/" + caseName + "/0.jpeg");
+         img1 = cv::imread("lesson16/data/" + caseName + "/1.jpeg");}
     rassert(!img0.empty(), 324789374290018);
     rassert(!img1.empty(), 378957298420019);
 
@@ -136,23 +141,40 @@ void run(std::string caseName) {
 
     cv::Mat panoDiff(pano_rows, pano_cols, CV_8UC3, cv::Scalar(0, 0, 0));
     // TODO 2 вам надо заполнить panoDiff картинку так чтобы было четко ясно где pano0 картинка (объявлена выше) и pano1 картинка отличаются сильно, а где - слабо:
-    vector<vector<int> > a(pano_rows);for(auto &a1:a) a1.resize(pano_cols);
-    for(int i=0;i<a.size();++i) for(int j=0;j<a[i].size();++j) a[i][j]=0;
+    vector<vector<int> > a(pano_rows);
+    for(auto &a1:a) a1.resize(pano_cols);
+    for(int i=0;i<a.size();++i)
+        for(int j=0;j<a[i].size();++j) a[i][j]=0;
     for(int i=0;i<pano_rows;++i)
     {
         for(int j=0;j<pano_cols;++j)
         {
             Vec3b color0=pano0.at<Vec3b>(i,j);Vec3b color1=pano1.at<cv::Vec3b>(i,j);
             bool emp0=isPixelEmpty(color0);bool emp1=isPixelEmpty(color1);
-            if((emp0^emp1)) {panoDiff.at<cv::Vec3b>(i,j)={255,255,255};a[i][j]=1000;} else if(emp0 && emp1) {panoDiff.at<cv::Vec3b>(i,j)={0,0,0};a[i][j]=1000;}
-            else {int diff=abs(color0[0]-color1[0])+abs(color0[1]-color1[1])+abs(color0[2]-color1[2]);
+            if((emp0^emp1)) {
+                panoDiff.at<cv::Vec3b>(i,j)={255,255,255};a[i][j]=1000;
+            }
+            else
+                if(emp0 && emp1) {
+                    panoDiff.at<cv::Vec3b>(i,j)={0,0,0};a[i][j]=1000;
+                }
+            else {
+                int diff=abs(color0[0]-color1[0])+abs(color0[1]-color1[1])+abs(color0[2]-color1[2]);
                 a[i][j]=diff;
                 uchar col=std::min((uchar) 255,(uchar) diff);
-                panoDiff.at<cv::Vec3b>(i,j)={col,col,col};}
+                panoDiff.at<cv::Vec3b>(i,j)={col,col,col};
+            }
         }
     }
     int n1=pano_rows;int m1=pano_cols;
-    vector<vector<bool> > used(pano_rows);vector<vector<bool> > ok(pano_rows);vector<vector<int> > is(pano_rows);vector<vector<pair<int,int> > > pr(n1);for(int i=0;i<used.size();++i) {for(int j=0;j<pano_cols;++j) {used[i].push_back(0);ok[i].push_back(0);is[i].push_back(1e9);pr[i].push_back({-1,-1});}}
+    vector<vector<bool> > used(pano_rows);
+    vector<vector<bool> > ok(pano_rows);vector<vector<int> > is(pano_rows);
+    vector<vector<pair<int,int> > > pr(n1);
+    for(int i=0;i<used.size();++i) {
+        for(int j=0;j<pano_cols;++j) {
+            used[i].push_back(0);ok[i].push_back(0);is[i].push_back(1e9);pr[i].push_back({-1,-1});
+        }
+    }
     is[n1-1][0]=0;set<pair<int,pair<int,int> > > d;for(int i=0;i<pano_rows;++i) for(int j=0;j<pano_cols;++j) d.insert({is[i][j],{i,j}});
     while(!d.empty())
     {
@@ -172,7 +194,8 @@ void run(std::string caseName) {
             is[x][y+1]=w;d.insert({is[x][y+1],{x,y+1}});
         }
     }
-    vector<pair<int,int> > h;pair<int,int> cur={0,m1-1};
+    vector<pair<int,int> > h;
+    pair<int,int> cur={0,m1-1};
     while(cur.first!=(n1-1) || cur.second!=0)
     {
         h.push_back(cur);cur=pr[cur.first][cur.second];
@@ -191,8 +214,13 @@ void run(std::string caseName) {
         for(int j=0;j<m1;++j)
         {
             f=(f || ok[i][j]);
-            if(f) {panodiff3.at<Vec3b>(i,j)=pano1.at<Vec3b>(i,j);}
-            else {panodiff3.at<Vec3b>(i,j)=pano0.at<Vec3b>(i,j);}
+            if(f)
+            {
+                panodiff3.at<Vec3b>(i,j)=pano1.at<Vec3b>(i,j);
+            }
+            else {
+                panodiff3.at<Vec3b>(i,j)=pano0.at<Vec3b>(i,j);
+            }
         }
     }
     // сравните в этих двух картинках пиксели по одинаковым координатам (т.е. мы сверяем картинки) и покрасьте соответствующий пиксель panoDiff по этой логике:
@@ -214,7 +242,7 @@ int main() {
         run("1_hanging"); // TODO 3 проанализируйте результаты по фотографиям с дрона - где различие сильное, где малое? почему так?
         run("2_hiking"); // TODO 4 проанализируйте результаты по фотографиям с дрона - где различие сильное, где малое? почему так?
         run("3_aero"); // TODO 5 проанализируйте результаты по фотографиям с дрона - где различие сильное, где малое? почему так?
-        //run("4_your_data"); // TODO 6 сфотографируйте что-нибудь сами при этом на второй картинке что-то изменив, проведите анализ
+        run("4_denis"); // TODO 6 сфотографируйте что-нибудь сами при этом на второй картинке что-то изменив, проведите анализ
         // TODO 7 проведите анализ результатов на базе Вопросов-Упражнений предложенных в последней статье "Урок 19: панорама и визуализация качества склейки"
 
         return 0;
